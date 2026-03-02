@@ -2,6 +2,8 @@
  * Figmaアセットのプリロード & キャッシュ
  */
 
+const base = import.meta.env.BASE_URL
+
 const cache = new Map<string, HTMLImageElement>()
 
 function load(src: string): Promise<HTMLImageElement> {
@@ -23,22 +25,22 @@ export function getImage(src: string): HTMLImageElement | null {
   return cache.get(src) ?? null
 }
 
+export const SPHERE_SRC = `${base}sphere.png`
+export const KNOB_SRC = `${base}knob.png`
+export const RING_BEZEL_SRC = `${base}ring-bezel.png`
+export const RING_OVERLAY_SRC = `${base}ring-overlay.png`
+export const RING_LEVELS_SRC = `${base}ring-levels.png`
+
 /** 全アセットをプリロード。アプリ起動時に1回呼ぶ */
 export async function preloadAssets() {
   await Promise.all([
-    load('/sphere.png'),
-    load('/ring-overlay.png'),
-    load('/ring-levels.png'),
-    load('/knob.png'),
-    load('/ring-bezel.png'),
+    load(SPHERE_SRC),
+    load(RING_OVERLAY_SRC),
+    load(RING_LEVELS_SRC),
+    load(KNOB_SRC),
+    load(RING_BEZEL_SRC),
   ])
 }
-
-export const SPHERE_SRC = '/sphere.png'
-export const KNOB_SRC = '/knob.png'
-export const RING_BEZEL_SRC = '/ring-bezel.png'
-export const RING_OVERLAY_SRC = '/ring-overlay.png'
-export const RING_LEVELS_SRC = '/ring-levels.png'
 
 /** リングレベルスプライトシートの定数 */
 export const RING_LEVELS = {
