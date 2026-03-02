@@ -1,0 +1,125 @@
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #f5f3fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-circle {
+  position: relative;
+  width: 144px;
+  height: 144px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 0 24px -4px rgba(155, 143, 212, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.center-aurora-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.center-circle:active {
+  cursor: grabbing;
+}
+
+.center-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.center-number {
+  font-size: 36px;
+  font-weight: 300;
+  color: #424242;
+  letter-spacing: -1px;
+}
+
+.center-title {
+  font-size: 12px;
+  color: #757575;
+  letter-spacing: 0.5px;
+}
+
+.tab-ring {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 2px solid rgba(155, 143, 212, 0.4);
+  pointer-events: none;
+}
+
+.slider-area {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1;
+}
+
+.slider-label {
+  font-size: 12px;
+  color: #757575;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(155, 143, 212, 0.3);
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #9b8fd4;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #9b8fd4;
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-moz-range-track {
+  background: rgba(155, 143, 212, 0.3);
+  height: 6px;
+  border-radius: 3px;
+}
