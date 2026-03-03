@@ -1,14 +1,40 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { preloadAssets } from './assetLoader'
 import { Design1_SilkOrbit } from './Design1_SilkOrbit'
 import { Design2_FrostVeil } from './Design2_FrostVeil'
-import { Design3_EchoRing } from './Design3_EchoRing'
-import { Design4_NebulaSpin } from './Design4_NebulaSpin'
+import { Design3_EchoRing, EchoRingVariation } from './Design3_EchoRing'
+import { Design4_NebulaSpin, NebulaSpinVariation } from './Design4_NebulaSpin'
 import { Design5_PulseWave } from './Design5_PulseWave'
 import { Design6_HazeDrift } from './Design6_HazeDrift'
 import { Design7_TwinShell } from './Design7_TwinShell'
 import { Design8_LumenCascade } from './Design8_LumenCascade'
+import { echoRingVariations } from './Design3_variations'
+import { nebulaSpinVariations } from './Design4_variations'
 import './LP.css'
+
+/** IntersectionObserver wrapper — pauses animation when off-screen */
+function VisibilityWrapper({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  const handleIntersect = useCallback((entries: IntersectionObserverEntry[]) => {
+    entries.forEach((entry) => setVisible(entry.isIntersecting))
+  }, [])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(handleIntersect, { rootMargin: '100px' })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [handleIntersect])
+
+  return (
+    <div ref={ref} style={{ minHeight: visible ? undefined : 200 }}>
+      {visible ? children : null}
+    </div>
+  )
+}
 
 export default function LP() {
   useEffect(() => { preloadAssets() }, [])
@@ -22,16 +48,50 @@ export default function LP() {
         </p>
       </header>
 
-      <div className="lp-grid">
-        <Design1_SilkOrbit />
-        <Design2_FrostVeil />
-        <Design3_EchoRing />
-        <Design4_NebulaSpin />
-        <Design5_PulseWave />
-        <Design6_HazeDrift />
-        <Design7_TwinShell />
-        <Design8_LumenCascade />
+      {/* === Echo Ring Variations === */}
+      <section className="lp-section">
+        <h2 className="lp-section-title">Echo Ring Variations</h2>
+        <div className="lp-variation-grid">
+          {echoRingVariations.map((config) => (
+            <VisibilityWrapper key={config.id}>
+              <EchoRingVariation config={config} compact />
+            </VisibilityWrapper>
+          ))}
+        </div>
+      </section>
+
+      {/* === Nebula Spin Variations === */}
+      <section className="lp-section">
+        <h2 className="lp-section-title">Nebula Spin Variations</h2>
+        <div className="lp-variation-grid">
+          {nebulaSpinVariations.map((config) => (
+            <VisibilityWrapper key={config.id}>
+              <NebulaSpinVariation config={config} compact />
+            </VisibilityWrapper>
+          ))}
+        </div>
+      </section>
+
+      {/* === Separator === */}
+      <div className="lp-separator">
+        <span className="lp-separator-line" />
+        <span className="lp-separator-label">Original Designs</span>
+        <span className="lp-separator-line" />
       </div>
+
+      {/* === Original Designs === */}
+      <section className="lp-section">
+        <div className="lp-grid">
+          <Design1_SilkOrbit />
+          <Design2_FrostVeil />
+          <Design3_EchoRing />
+          <Design4_NebulaSpin />
+          <Design5_PulseWave />
+          <Design6_HazeDrift />
+          <Design7_TwinShell />
+          <Design8_LumenCascade />
+        </div>
+      </section>
 
       <footer className="lp-footer">
         <p>AppTalentHub - Flux Ring Prototype</p>

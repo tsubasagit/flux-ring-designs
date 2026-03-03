@@ -24,6 +24,59 @@
   letter-spacing: 0.5px;
 }
 
+/* --- Section --- */
+
+.lp-section {
+  max-width: 1600px;
+  margin: 0 auto 40px;
+}
+
+.lp-section-title {
+  font-size: 22px;
+  font-weight: 300;
+  color: #5a4d7a;
+  letter-spacing: 1.5px;
+  text-align: center;
+  margin: 0 0 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(180, 165, 210, 0.25);
+}
+
+/* --- Variation Grid (compact cards) --- */
+
+.lp-variation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  justify-items: center;
+}
+
+/* --- Separator --- */
+
+.lp-separator {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 800px;
+  margin: 48px auto;
+}
+
+.lp-separator-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180, 165, 210, 0.4), transparent);
+}
+
+.lp-separator-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: #9a8db8;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* --- Original Grid --- */
+
 .lp-grid {
   display: flex;
   flex-direction: column;
@@ -53,6 +106,33 @@
   box-shadow:
     0 8px 40px rgba(120, 100, 170, 0.14),
     0 2px 8px rgba(120, 100, 170, 0.06);
+}
+
+/* Compact variant for variation cards */
+.design-card--compact {
+  padding: 18px 16px 14px;
+  border-radius: 18px;
+}
+
+.design-card--compact .design-header {
+  margin-bottom: 12px;
+}
+
+.design-card--compact .design-number {
+  font-size: 24px;
+  min-width: 40px;
+}
+
+.design-card--compact .design-title {
+  font-size: 15px;
+}
+
+.design-card--compact .design-subtitle {
+  font-size: 11px;
+}
+
+.design-card--compact .design-controls {
+  margin-top: 10px;
 }
 
 .design-header {
@@ -197,6 +277,34 @@
 
 /* --- Responsive --- */
 
+/* Variation grid: 1 col on small screens */
+@media (max-width: 720px) {
+  .lp-variation-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Variation grid: up to 3 cols on medium */
+@media (min-width: 721px) and (max-width: 1099px) {
+  .lp-variation-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Variation grid: up to 4 cols on wide */
+@media (min-width: 1100px) and (max-width: 1599px) {
+  .lp-variation-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .lp-variation-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Original grid: 2 cols on wide */
 @media (min-width: 1100px) {
   .lp-grid {
     display: grid;

@@ -11,9 +11,12 @@ type Props = {
   description?: string
   children: (params: { amplitude: number; containerSize: number }) => ReactNode
   containerSize?: number
+  /** compact mode for variation cards (smaller size, no description) */
+  compact?: boolean
 }
 
-export function DesignBase({ title, subtitle, number, description, children, containerSize = 420 }: Props) {
+export function DesignBase({ title, subtitle, number, description, children, containerSize, compact }: Props) {
+  const resolvedSize = containerSize ?? (compact ? 320 : 420)
   const [amplitude, setAmplitude] = useState(1.0)
   const lastAngleRef = useRef(0)
   const isDragging = useRef(false)
@@ -53,7 +56,7 @@ export function DesignBase({ title, subtitle, number, description, children, con
   }, [])
 
   return (
-    <div className="design-card">
+    <div className={`design-card${compact ? ' design-card--compact' : ''}`}>
       <div className="design-header">
         <span className="design-number">{number}</span>
         <div>
@@ -63,14 +66,14 @@ export function DesignBase({ title, subtitle, number, description, children, con
       </div>
       <div
         className="design-canvas-area"
-        style={{ width: containerSize, height: containerSize }}
+        style={{ width: resolvedSize, height: resolvedSize }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         onWheel={handleWheel}
       >
-        {children({ amplitude, containerSize })}
+        {children({ amplitude, containerSize: resolvedSize })}
       </div>
       <div className="design-controls">
         <label className="design-slider-label">
@@ -86,7 +89,7 @@ export function DesignBase({ title, subtitle, number, description, children, con
         </label>
         <span className="design-amplitude-value">{amplitude.toFixed(1)}</span>
       </div>
-      {description && (
+      {!compact && description && (
         <div className="design-description">
           {description}
         </div>
