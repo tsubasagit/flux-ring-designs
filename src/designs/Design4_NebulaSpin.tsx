@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { DesignBase } from './DesignBase'
-import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa } from './drawHelpers'
+import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa, drawLightAnimation } from './drawHelpers'
 import type { NebulaSpinVariationConfig, RenderMode } from './Design4_variations'
 
 /**
@@ -17,7 +17,6 @@ interface DrawParams {
   alphaScale: number
   blurAmount: number
   thickScale: number
-  filterBlurPx: number
   offsetCount: number
   dotDensity: number
   speedScale: number
@@ -31,7 +30,6 @@ const defaultParams: DrawParams = {
   alphaScale: 1.0,
   blurAmount: 0,
   thickScale: 1,
-  filterBlurPx: 0,
   offsetCount: 1,
   dotDensity: 1,
   speedScale: 1.0,
@@ -47,7 +45,6 @@ function buildParams(config?: NebulaSpinVariationConfig): DrawParams {
     alphaScale: config.alphaScale ?? 1.0,
     blurAmount: config.blurAmount ?? 20,
     thickScale: config.thickScale ?? 3.0,
-    filterBlurPx: config.filterBlurPx ?? 4,
     offsetCount: config.offsetCount ?? 4,
     dotDensity: config.dotDensity ?? 1.0,
     speedScale: config.speedScale ?? 1.0,
@@ -122,23 +119,6 @@ function renderArmGradientFill(
   ctx.stroke()
 }
 
-/** filterBlur for spiral arm */
-function renderArmFilterBlur(
-  ctx: CanvasRenderingContext2D,
-  armWidth: number,
-  layer: number,
-  params: DrawParams,
-  alpha: number,
-  hue: number,
-) {
-  ctx.save()
-  ctx.filter = `blur(${params.filterBlurPx}px)`
-  ctx.strokeStyle = `hsla(${hue}, ${params.saturation}%, ${params.lightness}%, ${alpha * 1.5})`
-  ctx.lineWidth = armWidth * (0.3 + (2 - Math.abs(layer - 1)) * 0.3)
-  ctx.lineCap = 'round'
-  ctx.stroke()
-  ctx.restore()
-}
 
 /** multiOffset for spiral arm — rebuilds arm path at slight offsets */
 function renderArmMultiOffset(
@@ -310,9 +290,6 @@ function drawNebulaSpin(
           case 'gradientFill':
             renderArmGradientFill(ctx, armWidth, layer, params, alpha, hue, maxExtent)
             break
-          case 'filterBlur':
-            renderArmFilterBlur(ctx, armWidth, layer, params, alpha, hue)
-            break
           default:
             // fallback
             ctx.strokeStyle = `hsla(${hue}, ${params.saturation}%, ${params.lightness}%, ${alpha * 2})`
@@ -384,6 +361,9 @@ function drawNebulaSpin(
   // リングオーバーレイ
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.1)
   drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, 0.2)
+
+  // 光のアニメーション
+  drawLightAnimation(ctx, cx, cy, Math.min(w, h), time, amplitude)
 
   // 中心ユニット（紫グロー + ベゼル + つまみ）
   drawCenterUnit(ctx, cx, cy, orbR, amplitude)

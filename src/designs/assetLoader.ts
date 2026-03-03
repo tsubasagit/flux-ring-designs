@@ -40,6 +40,13 @@ export const HOWAHOWA_SRCS = [
   `${base}howahowa-1.png`, // Level 5 (amplitude高) — 5層
 ] as const
 
+/** 光のアニメーション (Figmaから直接エクスポート) — 3バリアント */
+export const LIGHT_ANIM_SRCS = [
+  `${base}light-anim-1.png`,
+  `${base}light-anim-2.png`,
+  `${base}light-anim-3.png`,
+] as const
+
 /** 全アセットをプリロード。アプリ起動時に1回呼ぶ */
 export async function preloadAssets() {
   await Promise.all([
@@ -49,6 +56,7 @@ export async function preloadAssets() {
     load(KNOB_SRC),
     load(RING_BEZEL_SRC),
     ...HOWAHOWA_SRCS.map(load),
+    ...LIGHT_ANIM_SRCS.map(load),
   ])
 }
 

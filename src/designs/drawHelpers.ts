@@ -5,7 +5,7 @@
  * Figmaレイヤー順（下→上）:
  *   背景のアニメーション → ほわほわ(SCREEN) → 光のアニメーション → Subtract(SOFT_LIGHT) → レベル(LINEAR_BURN, 0.4) → つまみ → テキスト
  */
-import { getImage, SPHERE_SRC, KNOB_SRC, RING_BEZEL_SRC, RING_OVERLAY_SRC, RING_LEVELS_SRC, RING_LEVELS, HOWAHOWA_SRCS } from './assetLoader'
+import { getImage, SPHERE_SRC, KNOB_SRC, RING_BEZEL_SRC, RING_OVERLAY_SRC, RING_LEVELS_SRC, RING_LEVELS, HOWAHOWA_SRCS, LIGHT_ANIM_SRCS } from './assetLoader'
 
 /**
  * 背景グロー（sphere.png = 背景のアニメーション）
@@ -206,6 +206,39 @@ export function drawRingOverlay(
   ctx.rotate(time * 0.1)
   ctx.globalAlpha = alpha
   const drawSize = size * 0.85
+  ctx.drawImage(img, -drawSize / 2, -drawSize / 2, drawSize, drawSize)
+  ctx.restore()
+}
+
+/**
+ * 光のアニメーション（Figmaから直接エクスポート）
+ * キラキラ星 + 光ドットで中心付近にきらめきを追加
+ * Figma: Star + Ellipse + blur elements, 3バリアント
+ * amplitude に応じてバリアントを切り替え、ゆっくり回転
+ */
+export function drawLightAnimation(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  size: number,
+  time: number,
+  amplitude: number,
+  alpha: number = 0.7,
+) {
+  // amplitude → バリアント (0〜2)
+  const t = Math.max(0, Math.min(1, (amplitude - 0.2) / 3.8))
+  const varIdx = Math.min(2, Math.floor(t * 3))
+  const src = LIGHT_ANIM_SRCS[varIdx]
+  const img = getImage(src)
+  if (!img) return
+
+  const drawSize = size * 0.6
+
+  ctx.save()
+  ctx.translate(cx, cy)
+  // ゆっくり逆回転で動きを出す
+  ctx.rotate(-time * 0.15)
+  ctx.globalAlpha = alpha * (0.6 + t * 0.4)
   ctx.drawImage(img, -drawSize / 2, -drawSize / 2, drawSize, drawSize)
   ctx.restore()
 }

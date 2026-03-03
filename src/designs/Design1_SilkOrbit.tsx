@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { DesignBase } from './DesignBase'
-import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa } from './drawHelpers'
+import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa, drawLightAnimation } from './drawHelpers'
 
 /**
  * Design 1: Silk Orbit
@@ -108,6 +108,9 @@ function drawSilkOrbit(
   // リングオーバーレイ（Figmaアセット）
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.12)
   drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, 0.25)
+
+  // 光のアニメーション
+  drawLightAnimation(ctx, cx, cy, Math.min(w, h), time, amplitude)
 
   // 中心ユニット（紫グロー + ベゼル + つまみ）
   drawCenterUnit(ctx, cx, cy, orbR, amplitude)

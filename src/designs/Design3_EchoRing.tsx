@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { DesignBase } from './DesignBase'
-import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa } from './drawHelpers'
+import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa, drawLightAnimation } from './drawHelpers'
 import type { EchoRingVariationConfig, RenderMode } from './Design3_variations'
 
 /**
@@ -17,7 +17,6 @@ interface DrawParams {
   alphaScale: number
   blurAmount: number
   thickScale: number
-  filterBlurPx: number
   offsetCount: number
   dotDensity: number
 }
@@ -30,7 +29,6 @@ const defaultParams: DrawParams = {
   alphaScale: 1.0,
   blurAmount: 0,
   thickScale: 1,
-  filterBlurPx: 0,
   offsetCount: 1,
   dotDensity: 1,
 }
@@ -45,7 +43,6 @@ function buildParams(config?: EchoRingVariationConfig): DrawParams {
     alphaScale: config.alphaScale ?? 1.0,
     blurAmount: config.blurAmount ?? 18,
     thickScale: config.thickScale ?? 3.0,
-    filterBlurPx: config.filterBlurPx ?? 4,
     offsetCount: config.offsetCount ?? 4,
     dotDensity: config.dotDensity ?? 1.0,
   }
@@ -200,22 +197,6 @@ function renderDotCloud(
   }
 }
 
-/** filterBlur: ctx.filter = 'blur()' で直接ぼかし */
-function renderFilterBlur(
-  ctx: CanvasRenderingContext2D,
-  t: number,
-  lineW: number,
-  params: DrawParams,
-  alpha: number,
-) {
-  const hue = params.hue + t * 30
-  ctx.save()
-  ctx.filter = `blur(${params.filterBlurPx}px)`
-  ctx.strokeStyle = `hsla(${hue}, ${params.saturation}%, ${params.lightness}%, ${alpha * 1.2})`
-  ctx.lineWidth = lineW * 1.5
-  ctx.stroke()
-  ctx.restore()
-}
 
 function drawEchoRing(
   ctx: CanvasRenderingContext2D,
@@ -302,10 +283,6 @@ function drawEchoRing(
           case 'dotCloud':
             renderDotCloud(ctx, baseR, time, groupPhaseOffset, i, amplitude, t, params, alpha)
             break
-          case 'filterBlur':
-            buildRingPath(ctx, baseR, time, groupPhaseOffset, i, amplitude)
-            renderFilterBlur(ctx, t, lineW, params, alpha)
-            break
         }
       } else {
         // Original mode: standard stroke
@@ -326,6 +303,9 @@ function drawEchoRing(
   // リングオーバーレイ
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.12)
   drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, 0.22)
+
+  // 光のアニメーション
+  drawLightAnimation(ctx, cx, cy, Math.min(w, h), time, amplitude)
 
   // 中心ユニット（紫グロー + ベゼル + つまみ）
   drawCenterUnit(ctx, cx, cy, orbR, amplitude)
