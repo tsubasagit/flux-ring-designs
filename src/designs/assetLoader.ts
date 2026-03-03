@@ -31,6 +31,15 @@ export const RING_BEZEL_SRC = `${base}ring-bezel.png`
 export const RING_OVERLAY_SRC = `${base}ring-overlay.png`
 export const RING_LEVELS_SRC = `${base}ring-levels.png`
 
+/** ほわほわバリアント (Figmaから直接エクスポート) — バリアント5(1層)→バリアント1(5層) */
+export const HOWAHOWA_SRCS = [
+  `${base}howahowa-5.png`, // Level 1 (amplitude低) — 1層
+  `${base}howahowa-4.png`, // Level 2 — 2層
+  `${base}howahowa-3.png`, // Level 3 — 3層
+  `${base}howahowa-2.png`, // Level 4 — 4層
+  `${base}howahowa-1.png`, // Level 5 (amplitude高) — 5層
+] as const
+
 /** 全アセットをプリロード。アプリ起動時に1回呼ぶ */
 export async function preloadAssets() {
   await Promise.all([
@@ -39,6 +48,7 @@ export async function preloadAssets() {
     load(RING_LEVELS_SRC),
     load(KNOB_SRC),
     load(RING_BEZEL_SRC),
+    ...HOWAHOWA_SRCS.map(load),
   ])
 }
 

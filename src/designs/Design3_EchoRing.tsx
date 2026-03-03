@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { DesignBase } from './DesignBase'
-import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel } from './drawHelpers'
+import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa } from './drawHelpers'
 import type { EchoRingVariationConfig, RenderMode } from './Design3_variations'
 
 /**
@@ -319,6 +319,9 @@ function drawEchoRing(
       ctx.restore()
     }
   }
+
+  // ほわほわエフェクト
+  drawHowahowa(ctx, cx, cy, Math.min(w, h), time, amplitude)
 
   // リングオーバーレイ
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.12)

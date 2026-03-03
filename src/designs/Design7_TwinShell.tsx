@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { DesignBase } from './DesignBase'
-import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel } from './drawHelpers'
+import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa } from './drawHelpers'
 
 /**
  * Design 7: Twin Shell
@@ -117,6 +117,9 @@ function drawTwinShell(
     ctx.stroke()
     ctx.restore()
   }
+
+  // ほわほわエフェクト
+  drawHowahowa(ctx, cx, cy, Math.min(w, h), time, amplitude)
 
   // リングオーバーレイ
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.12)
