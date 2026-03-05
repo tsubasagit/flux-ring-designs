@@ -73,8 +73,10 @@ function drawLumenCascade(
       while (angleDelta < -Math.PI) angleDelta += Math.PI * 2
       const brightness = Math.exp(-(angleDelta * angleDelta) / gaussWidth)
 
-      const baseAlpha = 0.03 + (1 - t) * 0.06
-      const alpha = (baseAlpha + brightness * (0.15 + amplitude * 0.05)) * fadeAlpha
+      // レベルが上がってもalpha・明度を維持（黒くならないように）
+      const levelAlphaBoost = config ? level * 0.04 : 0
+      const baseAlpha = 0.05 + (1 - t) * 0.08 + levelAlphaBoost
+      const alpha = (baseAlpha + brightness * (0.2 + amplitude * 0.06)) * fadeAlpha
       const hue = baseHue + t * 25
       const sat = baseSat + t * 10
 
@@ -93,15 +95,18 @@ function drawLumenCascade(
         else ctx.lineTo(x, y)
       }
 
-      // Afterglow on bright segments
-      if (brightness > 0.5) {
-        ctx.shadowColor = `hsla(${hue}, ${sat}%, 80%, ${brightness * 0.3 * fadeAlpha})`
-        ctx.shadowBlur = 6
+      // Afterglow on bright segments（レベルが上がるほどグロー強化）
+      const glowBoost = config ? 1 + level * 0.15 : 1
+      if (brightness > 0.4) {
+        ctx.shadowColor = `hsla(${hue}, ${sat}%, 82%, ${brightness * 0.35 * fadeAlpha * glowBoost})`
+        ctx.shadowBlur = 6 + (config ? level * 2 : 0)
       } else {
         ctx.shadowBlur = 0
       }
 
-      ctx.strokeStyle = `hsla(${hue}, ${sat}%, 76%, ${alpha})`
+      // 明度をレベルで底上げ（黒味を抑える）
+      const lightness = 76 + (config ? level * 2 : 0)
+      ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
       ctx.lineWidth = 0.8 + (1 - t) * 1.2 + brightness * 0.5
       ctx.stroke()
     }
