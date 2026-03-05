@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { DesignBase } from './DesignBase'
-import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa, drawLightAnimation } from './drawHelpers'
+import { drawCenterUnit, drawBackgroundGlow, drawRingOverlay, drawRingLevel, drawHowahowa, drawLightAnimation, amplitudeToLevel } from './drawHelpers'
+import type { LumenCascadeVariationConfig } from './Design8_variations'
 
 /**
  * Design 8: Lumen Cascade
@@ -13,7 +14,8 @@ function drawLumenCascade(
   w: number,
   h: number,
   time: number,
-  amplitude: number
+  amplitude: number,
+  config?: LumenCascadeVariationConfig
 ) {
   const cx = w / 2
   const cy = h / 2
@@ -25,14 +27,35 @@ function drawLumenCascade(
   // 背景グロー
   drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), 0.2)
 
-  const ringCount = Math.floor(5 + amplitude * 6)
+  const level = amplitudeToLevel(amplitude)
+  const rotSpeedScale = config?.rotationSpeedScale ?? 1.0
+  const cascSpeedScale = config?.cascadeSpeedScale ?? 1.0
+  const wobbleScale = config?.wobbleScale ?? 1.0
+  const gaussWidth = config?.gaussianWidth ?? 1.5
+  const baseHue = config?.hue ?? 265
+  const baseSat = config?.saturation ?? 55
+
+  // 波紋線数: バリエーションではLv1 Max(10本)をベースにレベルで増加
+  const ringCount = config
+    ? Math.floor(10 + (level - 1) * 5)
+    : Math.floor(5 + amplitude * 6)
   const segments = 40
+
+  // レベル遷移フェード: レベル内進行度を算出
+  const tNorm = Math.max(0, Math.min(1, (amplitude - 0.2) / 3.8))
+  const levelFloat = tNorm * 5
+  const levelFrac = levelFloat - Math.floor(levelFloat)
+  const fadeAlpha = config ? (levelFrac < 0.25 ? levelFrac / 0.25 : 1.0) : 1.0
+
+  // 回転加速: レベル連動
+  const baseSpeed = 0.3 * rotSpeedScale
+  const levelBoost = level * 0.08 * rotSpeedScale
 
   for (let i = 0; i < ringCount; i++) {
     const t = i / ringCount
     const baseR = orbR + 12 + t * (maxR - orbR - 24)
-    const rotation = time * 0.3
-    const cascadePhase = time * 0.6 + i * 0.4
+    const rotation = time * (baseSpeed + levelBoost)
+    const cascadePhase = time * (0.6 + level * 0.1) * cascSpeedScale + i * 0.4
 
     ctx.save()
     ctx.translate(cx, cy)
@@ -48,12 +71,12 @@ function drawLumenCascade(
       let angleDelta = segMid - cascadePhase
       while (angleDelta > Math.PI) angleDelta -= Math.PI * 2
       while (angleDelta < -Math.PI) angleDelta += Math.PI * 2
-      const brightness = Math.exp(-(angleDelta * angleDelta) / 1.5)
+      const brightness = Math.exp(-(angleDelta * angleDelta) / gaussWidth)
 
       const baseAlpha = 0.03 + (1 - t) * 0.06
-      const alpha = baseAlpha + brightness * (0.15 + amplitude * 0.05)
-      const hue = 265 + t * 25
-      const sat = 55 + t * 10
+      const alpha = (baseAlpha + brightness * (0.15 + amplitude * 0.05)) * fadeAlpha
+      const hue = baseHue + t * 25
+      const sat = baseSat + t * 10
 
       ctx.beginPath()
       // Compute wobbled points for this segment
@@ -61,8 +84,8 @@ function drawLumenCascade(
       for (let p = 0; p <= segPoints; p++) {
         const angle = segStart + (p / segPoints) * (segEnd - segStart)
         const wobble =
-          Math.sin(angle * 2 + time + i * 0.7) * amplitude * 3 +
-          Math.sin(angle * 4 + time * 1.3 + i) * amplitude * 1.5
+          (Math.sin(angle * 2 + time + i * 0.7) * amplitude * 3 +
+          Math.sin(angle * 4 + time * 1.3 + i) * amplitude * 1.5) * wobbleScale
         const r = baseR + wobble
         const x = r * Math.cos(angle)
         const y = r * Math.sin(angle)
@@ -72,7 +95,7 @@ function drawLumenCascade(
 
       // Afterglow on bright segments
       if (brightness > 0.5) {
-        ctx.shadowColor = `hsla(${hue}, ${sat}%, 80%, ${brightness * 0.3})`
+        ctx.shadowColor = `hsla(${hue}, ${sat}%, 80%, ${brightness * 0.3 * fadeAlpha})`
         ctx.shadowBlur = 6
       } else {
         ctx.shadowBlur = 0
@@ -111,7 +134,23 @@ export function Design8_LumenCascade() {
   )
 }
 
-function LumenCascadeCanvas({ amplitude, size }: { amplitude: number; size: number }) {
+/** Variation component for use in LP grid */
+export function LumenCascadeVariation({ config, compact }: { config: LumenCascadeVariationConfig; compact?: boolean }) {
+  return (
+    <DesignBase
+      number={config.id}
+      title={config.name}
+      subtitle={config.description}
+      compact={compact}
+    >
+      {({ amplitude, containerSize }) => (
+        <LumenCascadeCanvas amplitude={amplitude} size={containerSize} config={config} />
+      )}
+    </DesignBase>
+  )
+}
+
+function LumenCascadeCanvas({ amplitude, size, config }: { amplitude: number; size: number; config?: LumenCascadeVariationConfig }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const startRef = useRef(Date.now())
 
@@ -129,12 +168,12 @@ function LumenCascadeCanvas({ amplitude, size }: { amplitude: number; size: numb
     let rafId: number
     const tick = () => {
       const time = (Date.now() - startRef.current) / 1000
-      drawLumenCascade(ctx, size, size, time, amplitude)
+      drawLumenCascade(ctx, size, size, time, amplitude, config)
       rafId = requestAnimationFrame(tick)
     }
     rafId = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafId)
-  }, [amplitude, size])
+  }, [amplitude, size, config])
 
   return (
     <canvas
