@@ -24,8 +24,9 @@ function drawLumenCascade(
 
   ctx.clearRect(0, 0, w, h)
 
-  // 背景グロー
-  drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), 0.2)
+  // 背景グロー（バリエーションではレベルに応じて強化）
+  const bgGlowAlpha = config ? 0.2 + amplitudeToLevel(amplitude) * 0.06 : 0.2
+  drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), bgGlowAlpha)
 
   const level = amplitudeToLevel(amplitude)
   const rotSpeedScale = config?.rotationSpeedScale ?? 1.0
@@ -73,10 +74,10 @@ function drawLumenCascade(
       while (angleDelta < -Math.PI) angleDelta += Math.PI * 2
       const brightness = Math.exp(-(angleDelta * angleDelta) / gaussWidth)
 
-      // レベルが上がってもalpha・明度を維持（黒くならないように）
-      const levelAlphaBoost = config ? level * 0.04 : 0
-      const baseAlpha = 0.05 + (1 - t) * 0.08 + levelAlphaBoost
-      const alpha = (baseAlpha + brightness * (0.2 + amplitude * 0.06)) * fadeAlpha
+      // 暗部でも色味を残す（黒くならないように）
+      const levelAlphaBoost = config ? level * 0.08 : 0
+      const baseAlpha = 0.12 + (1 - t) * 0.1 + levelAlphaBoost
+      const alpha = Math.min(1, (baseAlpha + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha)
       const hue = baseHue + t * 25
       const sat = baseSat + t * 10
 
