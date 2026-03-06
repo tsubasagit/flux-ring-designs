@@ -95,7 +95,9 @@ function drawLumenCascade(
       // noDarken: Lv1で薄く → Lv5で濃く、段階的に存在感を増す
       const levelAlphaBoost = config ? level * 0.08 : 0
       const levelVisibility = noDarken ? 0.15 + (level - 1) * 0.12 : 1.0  // Lv1:0.15 → Lv5:0.63
-      const rawAlpha = (0.12 + (1 - t) * 0.1 + levelAlphaBoost + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha * levelVisibility
+      // noDarken Lv4+: 暗部セグメントの存在感を抑える（brightness≈0 → ×0.3）
+      const darkDimming = (noDarken && level >= 4) ? 0.3 + brightness * 0.7 : 1.0
+      const rawAlpha = (0.12 + (1 - t) * 0.1 + levelAlphaBoost + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha * levelVisibility * darkDimming
       // 重なりが暗くならないようalphaを制限（offscreenでstacking解消済みのため緩和）
       const alphaLimit = noDarken ? 0.6 : 1.0
       const alpha = Math.min(alphaLimit, rawAlpha)
@@ -135,11 +137,11 @@ function drawLumenCascade(
       // 明度: 紫がきちんと見える範囲に維持（65-72%）
       // 高すぎると白く、低すぎると重なりで黒くなる
       const lightness = noDarken
-        ? 70 + level * 1.5
+        ? 70 + level * 2.5
         : 76 + (config ? level * 2 : 0)
       ringCtx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
       // noDarken: Lv1で細く、レベルで太くなる
-      const lineScale = noDarken ? 0.4 + (level - 1) * 0.18 : 1.0  // Lv1:0.4 → Lv5:1.12
+      const lineScale = noDarken ? 0.4 + (level - 1) * 0.15 : 1.0  // Lv1:0.4 → Lv5:1.0
       ringCtx.lineWidth = (0.8 + (1 - t) * 1.2 + brightness * 0.5) * lineScale
       ringCtx.stroke()
     }
