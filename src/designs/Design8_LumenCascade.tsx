@@ -61,15 +61,24 @@ function drawLumenCascade(
   const baseSpeed = 0.3 * rotSpeedScale * baseSpeedMul
   const levelBoost = level * 0.08 * rotSpeedScale * accelDamping
 
+  // noDarken: オフスクリーンCanvasにリングを描画し、screen合成で重なり黒ずみを防止
+  const offscreen = noDarken ? document.createElement('canvas') : null
+  let ringCtx: CanvasRenderingContext2D = ctx
+  if (offscreen) {
+    offscreen.width = w
+    offscreen.height = h
+    ringCtx = offscreen.getContext('2d')!
+  }
+
   for (let i = 0; i < ringCount; i++) {
     const t = i / ringCount
     const baseR = orbR + 12 + t * (maxR - orbR - 24)
     const rotation = time * (baseSpeed + levelBoost)
     const cascadePhase = time * (0.6 * baseSpeedMul + level * 0.1 * accelDamping) * cascSpeedScale + i * 0.4
 
-    ctx.save()
-    ctx.translate(cx, cy)
-    ctx.rotate(rotation + i * 0.03)
+    ringCtx.save()
+    ringCtx.translate(cx, cy)
+    ringCtx.rotate(rotation + i * 0.03)
 
     // Draw ring as segments with varying alpha
     for (let s = 0; s < segments; s++) {
@@ -87,8 +96,8 @@ function drawLumenCascade(
       const levelAlphaBoost = config ? level * 0.08 : 0
       const levelVisibility = noDarken ? 0.15 + (level - 1) * 0.12 : 1.0  // Lv1:0.15 → Lv5:0.63
       const rawAlpha = (0.12 + (1 - t) * 0.1 + levelAlphaBoost + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha * levelVisibility
-      // 重なりが暗くならないようalphaを制限
-      const alphaLimit = noDarken ? 0.5 : 1.0
+      // 重なりが暗くならないようalphaを制限（offscreenでstacking解消済みのため緩和）
+      const alphaLimit = noDarken ? 0.6 : 1.0
       const alpha = Math.min(alphaLimit, rawAlpha)
       const hue = baseHue + t * 25
       // noDarken: 彩度を高めに保つ（紫がしっかり見えるように）
@@ -96,7 +105,7 @@ function drawLumenCascade(
         ? baseSat + t * 8 + level * 2
         : baseSat + t * 10
 
-      ctx.beginPath()
+      ringCtx.beginPath()
       // Compute wobbled points for this segment
       const segPoints = 4
       for (let p = 0; p <= segPoints; p++) {
@@ -109,18 +118,18 @@ function drawLumenCascade(
         const r = baseR + wobble
         const x = r * Math.cos(angle)
         const y = r * Math.sin(angle)
-        if (p === 0) ctx.moveTo(x, y)
-        else ctx.lineTo(x, y)
+        if (p === 0) ringCtx.moveTo(x, y)
+        else ringCtx.lineTo(x, y)
       }
 
       // Afterglow on bright segments（レベルが上がるほどグロー強化）
       const glowBoost = config ? 1 + level * 0.15 : 1
       const glowLightness = noDarken ? 72 + level * 1.5 : 82
       if (brightness > 0.4) {
-        ctx.shadowColor = `hsla(${hue}, ${sat}%, ${glowLightness}%, ${brightness * 0.35 * fadeAlpha * glowBoost})`
-        ctx.shadowBlur = 6 + (config ? level * 2 : 0)
+        ringCtx.shadowColor = `hsla(${hue}, ${sat}%, ${glowLightness}%, ${brightness * 0.35 * fadeAlpha * glowBoost})`
+        ringCtx.shadowBlur = 6 + (config ? level * 2 : 0)
       } else {
-        ctx.shadowBlur = 0
+        ringCtx.shadowBlur = 0
       }
 
       // 明度: 紫がきちんと見える範囲に維持（65-72%）
@@ -128,14 +137,23 @@ function drawLumenCascade(
       const lightness = noDarken
         ? 66 + level * 1.2
         : 76 + (config ? level * 2 : 0)
-      ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
+      ringCtx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
       // noDarken: Lv1で細く、レベルで太くなる
       const lineScale = noDarken ? 0.4 + (level - 1) * 0.18 : 1.0  // Lv1:0.4 → Lv5:1.12
-      ctx.lineWidth = (0.8 + (1 - t) * 1.2 + brightness * 0.5) * lineScale
-      ctx.stroke()
+      ringCtx.lineWidth = (0.8 + (1 - t) * 1.2 + brightness * 0.5) * lineScale
+      ringCtx.stroke()
     }
 
-    ctx.shadowBlur = 0
+    ringCtx.shadowBlur = 0
+    ringCtx.restore()
+  }
+
+  // オフスクリーンCanvasをscreen合成でメインCanvasに描画（重なりが明るくなる方向のみ）
+  if (offscreen) {
+    ctx.save()
+    ctx.globalCompositeOperation = 'screen'
+    ctx.globalAlpha = 0.9
+    ctx.drawImage(offscreen, 0, 0)
     ctx.restore()
   }
 
