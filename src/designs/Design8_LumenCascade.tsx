@@ -41,10 +41,11 @@ function drawLumenCascade(
     : config ? 0.2 + level * 0.06 : 0.2
   drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), bgGlowAlpha)
 
-  // 波紋線数: バリエーションではLv1 Max(10本)をベースにレベルで増加
-  // noDarken: リング密度を抑えて重なりによる暗さを防ぐ
+  // 波紋線数: noDarken ではLv1で少なく、レベルで段階的に増やす
   const ringCount = config
-    ? Math.floor(10 + (level - 1) * (noDarken ? 3 : 5))
+    ? (noDarken
+      ? Math.floor(3 + (level - 1) * 4.5)   // Lv1:3 → Lv2:7 → Lv3:12 → Lv4:16 → Lv5:21
+      : Math.floor(10 + (level - 1) * 5))
     : Math.floor(5 + amplitude * 6)
   const segments = 40
 
@@ -82,11 +83,12 @@ function drawLumenCascade(
       while (angleDelta < -Math.PI) angleDelta += Math.PI * 2
       const brightness = Math.exp(-(angleDelta * angleDelta) / gaussWidth)
 
-      // 暗部でも色味を残す（黒くならないように）
+      // noDarken: Lv1で薄く → Lv5で濃く、段階的に存在感を増す
       const levelAlphaBoost = config ? level * 0.08 : 0
-      const rawAlpha = (0.12 + (1 - t) * 0.1 + levelAlphaBoost + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha
-      // noDarken: 高レベルでは1本あたりのalphaを抑えて重なりが暗くならないようにする
-      const alphaLimit = noDarken ? 0.55 - level * 0.04 : 1.0
+      const levelVisibility = noDarken ? 0.15 + (level - 1) * 0.12 : 1.0  // Lv1:0.15 → Lv5:0.63
+      const rawAlpha = (0.12 + (1 - t) * 0.1 + levelAlphaBoost + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha * levelVisibility
+      // 重なりが暗くならないようalphaを制限
+      const alphaLimit = noDarken ? 0.5 : 1.0
       const alpha = Math.min(alphaLimit, rawAlpha)
       const hue = baseHue + t * 25
       // noDarken: 彩度を高めに保つ（紫がしっかり見えるように）
@@ -127,7 +129,9 @@ function drawLumenCascade(
         ? 66 + level * 1.2
         : 76 + (config ? level * 2 : 0)
       ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
-      ctx.lineWidth = 0.8 + (1 - t) * 1.2 + brightness * 0.5
+      // noDarken: Lv1で細く、レベルで太くなる
+      const lineScale = noDarken ? 0.4 + (level - 1) * 0.18 : 1.0  // Lv1:0.4 → Lv5:1.12
+      ctx.lineWidth = (0.8 + (1 - t) * 1.2 + brightness * 0.5) * lineScale
       ctx.stroke()
     }
 
