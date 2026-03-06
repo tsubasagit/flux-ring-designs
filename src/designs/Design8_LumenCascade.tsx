@@ -84,12 +84,14 @@ function drawLumenCascade(
 
       // 暗部でも色味を残す（黒くならないように）
       const levelAlphaBoost = config ? level * 0.08 : 0
-      const baseAlpha = 0.12 + (1 - t) * 0.1 + levelAlphaBoost
-      const alpha = Math.min(1, (baseAlpha + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha)
+      const rawAlpha = (0.12 + (1 - t) * 0.1 + levelAlphaBoost + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha
+      // noDarken: 高レベルでは1本あたりのalphaを抑えて重なりが暗くならないようにする
+      const alphaLimit = noDarken ? 0.55 - level * 0.04 : 1.0
+      const alpha = Math.min(alphaLimit, rawAlpha)
       const hue = baseHue + t * 25
-      // noDarken: Lv4-5でも彩度を維持（黒味を防ぐ）
+      // noDarken: 彩度を高めに保つ（紫がしっかり見えるように）
       const sat = noDarken
-        ? baseSat + t * 10 + Math.min(level, 3) * 3
+        ? baseSat + t * 8 + level * 2
         : baseSat + t * 10
 
       ctx.beginPath()
@@ -97,9 +99,11 @@ function drawLumenCascade(
       const segPoints = 4
       for (let p = 0; p <= segPoints; p++) {
         const angle = segStart + (p / segPoints) * (segEnd - segStart)
+        // noDarken: 高レベルでwobbleを抑え、リングの交差・重なりを防ぐ
+        const ampForWobble = noDarken ? Math.min(amplitude, 2.0 + level * 0.3) : amplitude
         const wobble =
-          (Math.sin(angle * 2 + time + i * 0.7) * amplitude * 3 +
-          Math.sin(angle * 4 + time * 1.3 + i) * amplitude * 1.5) * wobbleScale
+          (Math.sin(angle * 2 + time + i * 0.7) * ampForWobble * 3 +
+          Math.sin(angle * 4 + time * 1.3 + i) * ampForWobble * 1.5) * wobbleScale
         const r = baseR + wobble
         const x = r * Math.cos(angle)
         const y = r * Math.sin(angle)
@@ -109,7 +113,7 @@ function drawLumenCascade(
 
       // Afterglow on bright segments（レベルが上がるほどグロー強化）
       const glowBoost = config ? 1 + level * 0.15 : 1
-      const glowLightness = noDarken ? 84 + level * 2 : 82
+      const glowLightness = noDarken ? 72 + level * 1.5 : 82
       if (brightness > 0.4) {
         ctx.shadowColor = `hsla(${hue}, ${sat}%, ${glowLightness}%, ${brightness * 0.35 * fadeAlpha * glowBoost})`
         ctx.shadowBlur = 6 + (config ? level * 2 : 0)
@@ -117,10 +121,10 @@ function drawLumenCascade(
         ctx.shadowBlur = 0
       }
 
-      // 明度をレベルで底上げ（黒味を抑える）
-      // noDarken: 高レベルでも明度を十分に確保し、黒に遷移しない
+      // 明度: 紫がきちんと見える範囲に維持（65-72%）
+      // 高すぎると白く、低すぎると重なりで黒くなる
       const lightness = noDarken
-        ? 78 + level * 3
+        ? 66 + level * 1.2
         : 76 + (config ? level * 2 : 0)
       ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
       ctx.lineWidth = 0.8 + (1 - t) * 1.2 + brightness * 0.5
