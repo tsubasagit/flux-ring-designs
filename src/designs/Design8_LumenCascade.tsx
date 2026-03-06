@@ -44,7 +44,7 @@ function drawLumenCascade(
   // 波紋線数: noDarken ではLv1で少なく、レベルで段階的に増やす
   const ringCount = config
     ? (noDarken
-      ? Math.floor(3 + (level - 1) * 4.5)   // Lv1:3 → Lv2:7 → Lv3:12 → Lv4:16 → Lv5:21
+      ? Math.floor(3 + (level - 1) * 3)   // Lv1:3 → Lv2:6 → Lv3:9 → Lv4:12 → Lv5:15
       : Math.floor(10 + (level - 1) * 5))
     : Math.floor(5 + amplitude * 6)
   const segments = 40
@@ -135,7 +135,7 @@ function drawLumenCascade(
       // 明度: 紫がきちんと見える範囲に維持（65-72%）
       // 高すぎると白く、低すぎると重なりで黒くなる
       const lightness = noDarken
-        ? 66 + level * 1.2
+        ? 70 + level * 1.5
         : 76 + (config ? level * 2 : 0)
       ringCtx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
       // noDarken: Lv1で細く、レベルで太くなる
