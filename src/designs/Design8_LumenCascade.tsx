@@ -26,7 +26,9 @@ function drawLumenCascade(
   ctx.clearRect(0, 0, w, h)
 
   // 背景グロー（バリエーションではレベルに応じて強化）
-  const bgGlowAlpha = config ? 0.2 + amplitudeToLevel(amplitude) * 0.06 : 0.2
+  const bgGlowAlpha = noDarken
+    ? 0.25 + amplitudeToLevel(amplitude) * 0.08
+    : config ? 0.2 + amplitudeToLevel(amplitude) * 0.06 : 0.2
   drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), bgGlowAlpha)
 
   const level = amplitudeToLevel(amplitude)
@@ -40,8 +42,9 @@ function drawLumenCascade(
   const noDarken = config?.preventDarkening ?? false
 
   // 波紋線数: バリエーションではLv1 Max(10本)をベースにレベルで増加
+  // noDarken: リング密度を抑えて重なりによる暗さを防ぐ
   const ringCount = config
-    ? Math.floor(10 + (level - 1) * 5)
+    ? Math.floor(10 + (level - 1) * (noDarken ? 3 : 5))
     : Math.floor(5 + amplitude * 6)
   const segments = 40
 
@@ -129,13 +132,20 @@ function drawLumenCascade(
   }
 
   // ほわほわエフェクト
-  drawHowahowa(ctx, cx, cy, Math.min(w, h), time, amplitude)
+  if (noDarken) {
+    // noDarken: Lv4-5でもLv3の画像を使い、暗い画像を回避
+    const clampedAmp = Math.min(amplitude, 2.5)
+    drawHowahowa(ctx, cx, cy, Math.min(w, h), time, clampedAmp)
+  } else {
+    drawHowahowa(ctx, cx, cy, Math.min(w, h), time, amplitude)
+  }
 
   // リングオーバーレイ
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.12)
-  // noDarken: ring-levelのmultiplyブレンドを抑えて黒み遷移を防止
-  const ringLevelAlpha = noDarken ? 0.08 : 0.22
-  drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, ringLevelAlpha)
+  // noDarken: multiply ブレンドの drawRingLevel を完全スキップ（黒みの主因）
+  if (!noDarken) {
+    drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, 0.22)
+  }
 
   // 光のアニメーション
   drawLightAnimation(ctx, cx, cy, Math.min(w, h), time, amplitude)
