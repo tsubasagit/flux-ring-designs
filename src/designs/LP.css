@@ -51,6 +51,18 @@
   justify-items: center;
 }
 
+/* --- Hero Design (center featured card) --- */
+
+.lp-hero-design {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.lp-hero-design .design-card {
+  max-width: 520px;
+}
+
 /* --- Separator --- */
 
 .lp-separator {

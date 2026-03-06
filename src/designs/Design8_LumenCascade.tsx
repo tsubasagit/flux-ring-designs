@@ -20,7 +20,8 @@ function drawLumenCascade(
   const cx = w / 2
   const cy = h / 2
   const maxR = Math.min(w, h) / 2 - 10
-  const orbR = 30 + amplitude * 8
+  // ダイヤルサイズ固定（amplitude に依存しない）
+  const orbR = config ? 38 : 30 + amplitude * 8
 
   ctx.clearRect(0, 0, w, h)
 
@@ -35,6 +36,8 @@ function drawLumenCascade(
   const gaussWidth = config?.gaussianWidth ?? 1.5
   const baseHue = config?.hue ?? 265
   const baseSat = config?.saturation ?? 55
+  const baseSpeedMul = config?.baseSpeedMultiplier ?? 1.0
+  const noDarken = config?.preventDarkening ?? false
 
   // 波紋線数: バリエーションではLv1 Max(10本)をベースにレベルで増加
   const ringCount = config
@@ -48,15 +51,17 @@ function drawLumenCascade(
   const levelFrac = levelFloat - Math.floor(levelFloat)
   const fadeAlpha = config ? (levelFrac < 0.25 ? levelFrac / 0.25 : 1.0) : 1.0
 
-  // 回転加速: レベル連動
-  const baseSpeed = 0.3 * rotSpeedScale
-  const levelBoost = level * 0.08 * rotSpeedScale
+  // 回転加速: レベル連動（baseSpeedMultiplier でLv1の速度を底上げ）
+  // 加速倍率はスタート速度が速いほど控えめにする
+  const accelDamping = 1.0 / Math.sqrt(baseSpeedMul)
+  const baseSpeed = 0.3 * rotSpeedScale * baseSpeedMul
+  const levelBoost = level * 0.08 * rotSpeedScale * accelDamping
 
   for (let i = 0; i < ringCount; i++) {
     const t = i / ringCount
     const baseR = orbR + 12 + t * (maxR - orbR - 24)
     const rotation = time * (baseSpeed + levelBoost)
-    const cascadePhase = time * (0.6 + level * 0.1) * cascSpeedScale + i * 0.4
+    const cascadePhase = time * (0.6 * baseSpeedMul + level * 0.1 * accelDamping) * cascSpeedScale + i * 0.4
 
     ctx.save()
     ctx.translate(cx, cy)
@@ -79,7 +84,10 @@ function drawLumenCascade(
       const baseAlpha = 0.12 + (1 - t) * 0.1 + levelAlphaBoost
       const alpha = Math.min(1, (baseAlpha + brightness * (0.25 + amplitude * 0.06)) * fadeAlpha)
       const hue = baseHue + t * 25
-      const sat = baseSat + t * 10
+      // noDarken: Lv4-5でも彩度を維持（黒味を防ぐ）
+      const sat = noDarken
+        ? baseSat + t * 10 + Math.min(level, 3) * 3
+        : baseSat + t * 10
 
       ctx.beginPath()
       // Compute wobbled points for this segment
@@ -98,15 +106,19 @@ function drawLumenCascade(
 
       // Afterglow on bright segments（レベルが上がるほどグロー強化）
       const glowBoost = config ? 1 + level * 0.15 : 1
+      const glowLightness = noDarken ? 84 + level * 2 : 82
       if (brightness > 0.4) {
-        ctx.shadowColor = `hsla(${hue}, ${sat}%, 82%, ${brightness * 0.35 * fadeAlpha * glowBoost})`
+        ctx.shadowColor = `hsla(${hue}, ${sat}%, ${glowLightness}%, ${brightness * 0.35 * fadeAlpha * glowBoost})`
         ctx.shadowBlur = 6 + (config ? level * 2 : 0)
       } else {
         ctx.shadowBlur = 0
       }
 
       // 明度をレベルで底上げ（黒味を抑える）
-      const lightness = 76 + (config ? level * 2 : 0)
+      // noDarken: 高レベルでも明度を十分に確保し、黒に遷移しない
+      const lightness = noDarken
+        ? 78 + level * 3
+        : 76 + (config ? level * 2 : 0)
       ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${lightness}%, ${alpha})`
       ctx.lineWidth = 0.8 + (1 - t) * 1.2 + brightness * 0.5
       ctx.stroke()
@@ -121,7 +133,9 @@ function drawLumenCascade(
 
   // リングオーバーレイ
   drawRingOverlay(ctx, cx, cy, Math.min(w, h), time, 0.12)
-  drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, 0.22)
+  // noDarken: ring-levelのmultiplyブレンドを抑えて黒み遷移を防止
+  const ringLevelAlpha = noDarken ? 0.08 : 0.22
+  drawRingLevel(ctx, cx, cy, Math.min(w, h), time, amplitude, ringLevelAlpha)
 
   // 光のアニメーション
   drawLightAnimation(ctx, cx, cy, Math.min(w, h), time, amplitude)

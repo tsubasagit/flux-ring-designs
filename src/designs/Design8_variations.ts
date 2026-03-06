@@ -13,7 +13,80 @@ export interface LumenCascadeVariationConfig {
   saturation: number
   wobbleScale: number
   gaussianWidth: number
+  /** Lv1 starting speed multiplier (default 1.0) */
+  baseSpeedMultiplier?: number
+  /** Prevent darkening at Lv4-5 (default false) */
+  preventDarkening?: boolean
 }
+
+/** 8-1 Sub-variations (8-1-1 ~ 8-1-5) */
+export const violetTorrentSubVariations: LumenCascadeVariationConfig[] = [
+  {
+    id: '08-1-1',
+    name: 'Violet Breeze',
+    description: '紫の微風、穏やかな加速',
+    rotationSpeedScale: 1.3,
+    cascadeSpeedScale: 1.0,
+    hue: 270,
+    saturation: 58,
+    wobbleScale: 0.9,
+    gaussianWidth: 1.8,
+    baseSpeedMultiplier: 1.2,
+    preventDarkening: true,
+  },
+  {
+    id: '08-1-2',
+    name: 'Violet Stream',
+    description: '紫の小川、滑らかな流れ',
+    rotationSpeedScale: 1.35,
+    cascadeSpeedScale: 1.05,
+    hue: 268,
+    saturation: 60,
+    wobbleScale: 1.0,
+    gaussianWidth: 1.6,
+    baseSpeedMultiplier: 1.3,
+    preventDarkening: true,
+  },
+  {
+    id: '08-1-3',
+    name: 'Violet Torrent',
+    description: '紫の激流、均整のとれた加速',
+    rotationSpeedScale: 1.4,
+    cascadeSpeedScale: 1.1,
+    hue: 270,
+    saturation: 58,
+    wobbleScale: 1.0,
+    gaussianWidth: 1.5,
+    baseSpeedMultiplier: 1.4,
+    preventDarkening: true,
+  },
+  {
+    id: '08-1-4',
+    name: 'Violet Surge',
+    description: '紫の奔流、力強い波動',
+    rotationSpeedScale: 1.45,
+    cascadeSpeedScale: 1.15,
+    hue: 272,
+    saturation: 56,
+    wobbleScale: 1.1,
+    gaussianWidth: 1.4,
+    baseSpeedMultiplier: 1.55,
+    preventDarkening: true,
+  },
+  {
+    id: '08-1-5',
+    name: 'Violet Tempest',
+    description: '紫の嵐、疾走するカスケード',
+    rotationSpeedScale: 1.5,
+    cascadeSpeedScale: 1.2,
+    hue: 265,
+    saturation: 62,
+    wobbleScale: 1.2,
+    gaussianWidth: 1.3,
+    baseSpeedMultiplier: 1.7,
+    preventDarkening: true,
+  },
+]
 
 export const lumenCascadeVariations: LumenCascadeVariationConfig[] = [
   {
@@ -26,6 +99,7 @@ export const lumenCascadeVariations: LumenCascadeVariationConfig[] = [
     saturation: 58,
     wobbleScale: 1.0,
     gaussianWidth: 1.5,
+    preventDarkening: true,
   },
   {
     id: '08-2',

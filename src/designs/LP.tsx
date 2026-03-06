@@ -10,7 +10,7 @@ import { Design7_TwinShell } from './Design7_TwinShell'
 import { Design8_LumenCascade, LumenCascadeVariation } from './Design8_LumenCascade'
 import { echoRingVariations } from './Design3_variations'
 import { nebulaSpinVariations } from './Design4_variations'
-import { lumenCascadeVariations } from './Design8_variations'
+import { lumenCascadeVariations, violetTorrentSubVariations } from './Design8_variations'
 import './LP.css'
 
 /** IntersectionObserver wrapper — pauses animation when off-screen */
@@ -48,6 +48,25 @@ export default function LP() {
           円をドラッグ（回転）またはスクロールでウェーブの層が変化します
         </p>
       </header>
+
+      {/* === 08-1 Violet Torrent Sub-Variations === */}
+      <section className="lp-section">
+        <h2 className="lp-section-title">08-1 Violet Torrent Variations</h2>
+        {/* 8-1 を中心に大きく表示 */}
+        <div className="lp-hero-design">
+          <VisibilityWrapper>
+            <LumenCascadeVariation config={lumenCascadeVariations[0]} />
+          </VisibilityWrapper>
+        </div>
+        {/* 8-1-1 ~ 8-1-5 のグリッド */}
+        <div className="lp-variation-grid">
+          {violetTorrentSubVariations.map((config) => (
+            <VisibilityWrapper key={config.id}>
+              <LumenCascadeVariation config={config} compact />
+            </VisibilityWrapper>
+          ))}
+        </div>
+      </section>
 
       {/* === Lumen Cascade Variations === */}
       <section className="lp-section">
