@@ -25,12 +25,6 @@ function drawLumenCascade(
 
   ctx.clearRect(0, 0, w, h)
 
-  // 背景グロー（バリエーションではレベルに応じて強化）
-  const bgGlowAlpha = noDarken
-    ? 0.25 + amplitudeToLevel(amplitude) * 0.08
-    : config ? 0.2 + amplitudeToLevel(amplitude) * 0.06 : 0.2
-  drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), bgGlowAlpha)
-
   const level = amplitudeToLevel(amplitude)
   const rotSpeedScale = config?.rotationSpeedScale ?? 1.0
   const cascSpeedScale = config?.cascadeSpeedScale ?? 1.0
@@ -40,6 +34,12 @@ function drawLumenCascade(
   const baseSat = config?.saturation ?? 55
   const baseSpeedMul = config?.baseSpeedMultiplier ?? 1.0
   const noDarken = config?.preventDarkening ?? false
+
+  // 背景グロー（バリエーションではレベルに応じて強化）
+  const bgGlowAlpha = noDarken
+    ? 0.25 + level * 0.08
+    : config ? 0.2 + level * 0.06 : 0.2
+  drawBackgroundGlow(ctx, cx, cy, Math.min(w, h), bgGlowAlpha)
 
   // 波紋線数: バリエーションではLv1 Max(10本)をベースにレベルで増加
   // noDarken: リング密度を抑えて重なりによる暗さを防ぐ
