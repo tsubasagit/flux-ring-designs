@@ -8,6 +8,8 @@ import { Design5_PulseWave } from './Design5_PulseWave'
 import { Design6_HazeDrift } from './Design6_HazeDrift'
 import { Design7_TwinShell } from './Design7_TwinShell'
 import { Design8_LumenCascade, LumenCascadeVariation } from './Design8_LumenCascade'
+import { Design10_NeumorphNoise } from './Design10_NeumorphNoise'
+import { Design11_NoiseOdyssey } from './Design11_NoiseOdyssey'
 import { echoRingVariations } from './Design3_variations'
 import { nebulaSpinVariations } from './Design4_variations'
 import { lumenCascadeVariations, violetTorrentSubVariations } from './Design8_variations'
@@ -48,6 +50,26 @@ export default function LP() {
           円をドラッグ（回転）またはスクロールでウェーブの層が変化します
         </p>
       </header>
+
+      {/* === 11 Noise Odyssey (TOP) === */}
+      <section className="lp-section">
+        <h2 className="lp-section-title">11 Noise Odyssey</h2>
+        <div className="lp-hero-design">
+          <VisibilityWrapper>
+            <Design11_NoiseOdyssey />
+          </VisibilityWrapper>
+        </div>
+      </section>
+
+      {/* === 10 Neumorph Noise === */}
+      <section className="lp-section">
+        <h2 className="lp-section-title">10 Neumorph Noise</h2>
+        <div className="lp-hero-design">
+          <VisibilityWrapper>
+            <Design10_NeumorphNoise />
+          </VisibilityWrapper>
+        </div>
+      </section>
 
       {/* === 08-1 Violet Torrent Sub-Variations === */}
       <section className="lp-section">
