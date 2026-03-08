@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { preloadAssets } from './assetLoader'
 import { Design1_SilkOrbit } from './Design1_SilkOrbit'
 import { Design2_FrostVeil } from './Design2_FrostVeil'
@@ -49,6 +50,12 @@ export default function LP() {
         <p className="lp-description">
           円をドラッグ（回転）またはスクロールでウェーブの層が変化します
         </p>
+        <Link to="/playground" className="lp-playground-link">
+          Playground
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </Link>
       </header>
 
       {/* === 11 Noise Odyssey (TOP) === */}
