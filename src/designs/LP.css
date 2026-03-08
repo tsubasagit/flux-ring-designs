@@ -24,11 +24,18 @@
   letter-spacing: 0.5px;
 }
 
+.lp-nav-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
 .lp-playground-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 20px;
   padding: 12px 28px;
   border-radius: 16px;
   background: #e8e0f0;

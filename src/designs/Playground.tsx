@@ -205,6 +205,10 @@ export default function Playground() {
           Back
         </Link>
 
+        <Link to="/lab" className="playground-lab-link">
+          Design Lab
+        </Link>
+
         <div className="playground-controls">
           <label className="playground-control">
             <span>Intensity</span>
