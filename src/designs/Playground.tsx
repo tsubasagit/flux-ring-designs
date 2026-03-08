@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { preloadAssets } from './assetLoader'
 import { Design10_NeumorphNoise } from './Design10_NeumorphNoise'
 import './Playground.css'
 
@@ -38,6 +39,8 @@ export default function Playground() {
   const intensityRef = useRef(1.0)
   const [hueShift, setHueShift] = useState(0)
   const hueShiftRef = useRef(0)
+
+  useEffect(() => { preloadAssets() }, [])
 
   intensityRef.current = intensity
   hueShiftRef.current = hueShift
