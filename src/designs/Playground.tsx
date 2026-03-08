@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Design10_NeumorphNoise } from './Design10_NeumorphNoise'
 import './Playground.css'
 
 const TAU = Math.PI * 2
@@ -229,6 +230,10 @@ export default function Playground() {
 
       <div className="playground-hint">
         Move your cursor to distort the ring
+      </div>
+
+      <div className="playground-mini-design">
+        <Design10_NeumorphNoise />
       </div>
     </div>
   )
