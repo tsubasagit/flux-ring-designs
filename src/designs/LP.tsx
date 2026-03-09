@@ -11,6 +11,7 @@ import { Design7_TwinShell } from './Design7_TwinShell'
 import { Design8_LumenCascade, LumenCascadeVariation } from './Design8_LumenCascade'
 import { Design10_NeumorphNoise } from './Design10_NeumorphNoise'
 import { Design11_NoiseOdyssey } from './Design11_NoiseOdyssey'
+import { Design12_NeumorphInertia } from './Design12_NeumorphInertia'
 import { echoRingVariations } from './Design3_variations'
 import { nebulaSpinVariations } from './Design4_variations'
 import { lumenCascadeVariations, violetTorrentSubVariations } from './Design8_variations'
@@ -66,7 +67,17 @@ export default function LP() {
         </div>
       </header>
 
-      {/* === 11 Noise Odyssey (TOP) === */}
+      {/* === 12 Neumorph Inertia (TOP) === */}
+      <section className="lp-section">
+        <h2 className="lp-section-title">12 Neumorph Inertia</h2>
+        <div className="lp-hero-design">
+          <VisibilityWrapper>
+            <Design12_NeumorphInertia />
+          </VisibilityWrapper>
+        </div>
+      </section>
+
+      {/* === 11 Noise Odyssey === */}
       <section className="lp-section">
         <h2 className="lp-section-title">11 Noise Odyssey</h2>
         <div className="lp-hero-design">
