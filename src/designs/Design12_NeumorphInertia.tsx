@@ -82,13 +82,13 @@ function InertiaBase({
 
   const LOG_K = 8
   const MAX_SPEED = 0.35
-  const FRICTION = 0.92
+  const FRICTION = 0.975  // 大げさな慣性: 長く滑らかに滑り続ける
 
   useEffect(() => {
     let running = true
     const tick = () => {
       if (!running) return
-      if (!isDragging.current && Math.abs(velocityRef.current) > 0.0005) {
+      if (!isDragging.current && Math.abs(velocityRef.current) > 0.0001) {
         velocityRef.current *= FRICTION
         setAmplitude(a => clamp(a - velocityRef.current, 0.2, 4))
       } else if (!isDragging.current) {
